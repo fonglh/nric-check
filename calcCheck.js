@@ -1,28 +1,29 @@
 $(function() {
-    var calculateNUSMatricNumber = function (id) {
-    var matches = id.toUpperCase().match(/^A\d{7}|U\d{6,7}/);
+    var calculateICNumber = function (id) {
+    var matches = id.toUpperCase().match(/^S\d{7}|T\d{7}|F\d{7}|G\d{7}/);
     if (matches) {
-    var match = matches[0];
+      var match = matches[0];
 
-    // Discard 3rd digit from U-prefixed NUSNET ID
-    if (match[0] === 'U' && match.length === 8) {
-    match = match.slice(0, 3) + match.slice(4);
+      var weights = {
+            S: [2, 7, 6, 5, 4, 3, 2, 0],
+            T: [2, 7, 6, 5, 4, 3, 2, 4],
+            F: [2, 7, 6, 5, 4, 3, 2, 0],
+            G: [2, 7, 6, 5, 4, 3, 2, 4],
+            }[match[0]];
+
+      for (var i = 0, sum = 0, digits = match.slice(-7); i < 7; i++) {
+        sum += weights[i] * digits[i];
+      }
+      sum += weights[7];
+
+      if(match[0] == "S" || match[0] == "T")
+        return match + 'JZIHGFEDCBA'[sum % 11];
+      else
+        return match + 'XWUTRQPNMLK'[sum % 11];
     }
-
-    var weights = {
-U: [0, 1, 3, 1, 2, 7],
-A: [1, 1, 1, 1, 1, 1]
-}[match[0]];
-
-for (var i = 0, sum = 0, digits = match.slice(-6); i < 6; i++) {
-sum += weights[i] * digits[i];
-}
-
-return match + 'YXWURNMLJHEAB'[sum % 13];
-}
 };
 
 $('input').on('change keyup', function () {
-    $('span').text(calculateNUSMatricNumber(this.value) || 'Invalid input!');
+    $('span').text(calculateICNumber(this.value) || 'Invalid input!');
     });
 });
